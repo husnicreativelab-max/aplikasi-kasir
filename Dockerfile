@@ -81,6 +81,7 @@ RUN set -eux; \
         storage/framework/views \
         storage/logs; \
     rm -rf public/storage; \
+    rm -f bootstrap/cache/*.php; \
     ln -s ../storage/app/public public/storage; \
     chmod +x /usr/local/bin/container-entrypoint; \
     APP_ENV=production php artisan package:discover --ansi; \

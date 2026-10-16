@@ -4,6 +4,7 @@ node_modules
 vendor
 public/build
 public/hot
+bootstrap/cache/*.php
 public/storage
 storage/logs/*
 storage/framework/cache/*
