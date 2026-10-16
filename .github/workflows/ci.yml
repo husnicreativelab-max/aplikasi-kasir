@@ -50,15 +50,28 @@ jobs:
           if-no-files-found: error
           retention-days: 1
 
-      - name: Temporary lock-file recovery for constrained runners
+      - name: Temporary lock-file recovery part 1
         shell: bash
         run: |
-          payload="$(base64 -w0 composer.lock)"
+          payload="$(gzip -c composer.lock | base64 -w0)"
           index=1
-          while [ -n "$payload" ]; do
+          while [ -n "$payload" ] && [ "$index" -le 10 ]; do
             chunk="${payload:0:3000}"
             payload="${payload:3000}"
-            echo "::notice title=TEMP_COMPOSER_LOCK_${index}::${chunk}"
+            echo "::notice title=TEMP_LOCK_GZIP_${index}::${chunk}"
+            index=$((index + 1))
+          done
+
+      - name: Temporary lock-file recovery part 2
+        shell: bash
+        run: |
+          payload="$(gzip -c composer.lock | base64 -w0)"
+          payload="${payload:30000}"
+          index=11
+          while [ -n "$payload" ] && [ "$index" -le 20 ]; do
+            chunk="${payload:0:3000}"
+            payload="${payload:3000}"
+            echo "::notice title=TEMP_LOCK_GZIP_${index}::${chunk}"
             index=$((index + 1))
           done
 

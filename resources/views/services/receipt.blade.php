@@ -1,5 +1,6 @@
 @php
-    $paperWidth = in_array((string) ($store['receipt_width_mm'] ?? '58'), ['58', '80'], true) ? $store['receipt_width_mm'] : '58';
+    $requestedPaperWidth = (string) ($store['receipt_width_mm'] ?? '58');
+    $paperWidth = in_array($requestedPaperWidth, ['58', '80'], true) ? $requestedPaperWidth : '58';
     $isRelease = $mode === 'ambil';
     $totalCost = $service->totalCost();
     $balanceDue = $service->balanceDue();
