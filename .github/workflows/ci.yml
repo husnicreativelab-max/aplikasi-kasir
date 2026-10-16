@@ -51,7 +51,16 @@ jobs:
           retention-days: 1
 
       - name: Temporary lock-file recovery for constrained runners
-        run: echo "::notice title=TEMP_COMPOSER_LOCK_B64::$(base64 -w0 composer.lock)"
+        shell: bash
+        run: |
+          payload="$(base64 -w0 composer.lock)"
+          index=1
+          while [ -n "$payload" ]; do
+            chunk="${payload:0:3000}"
+            payload="${payload:3000}"
+            echo "::notice title=TEMP_COMPOSER_LOCK_${index}::${chunk}"
+            index=$((index + 1))
+          done
 
       - name: Run feature and unit tests (SQLite)
         shell: bash
@@ -61,8 +70,14 @@ jobs:
           status=$?
           cat /tmp/phpunit.log
           if [ "$status" -ne 0 ]; then
-            failure_log="$(tail -n 100 /tmp/phpunit.log | base64 -w0)"
-            echo "::error title=PHPUNIT_FAILURE_LOG_B64::$failure_log"
+            payload="$(tail -n 120 /tmp/phpunit.log | base64 -w0)"
+            index=1
+            while [ -n "$payload" ]; do
+              chunk="${payload:0:3000}"
+              payload="${payload:3000}"
+              echo "::error title=PHPUNIT_FAILURE_LOG_${index}::${chunk}"
+              index=$((index + 1))
+            done
             exit "$status"
           fi
 

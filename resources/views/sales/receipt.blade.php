@@ -1,5 +1,6 @@
 @php
-    $paperWidth = in_array((string) ($store['receipt_width_mm'] ?? '58'), ['58', '80'], true) ? $store['receipt_width_mm'] : '58';
+    $requestedPaperWidth = (string) ($store['receipt_width_mm'] ?? '58');
+    $paperWidth = in_array($requestedPaperWidth, ['58', '80'], true) ? $requestedPaperWidth : '58';
     $paymentLabels = ['tunai' => 'Tunai', 'transfer' => 'Transfer', 'qris' => 'QRIS (manual)'];
     $whatsapp = \App\Support\WhatsAppLink::normalizeNumber($store['whatsapp'] ?? null);
     $whatsappText = rawurlencode('Terima kasih telah berbelanja di '.($store['store_name'] ?? 'toko kami').'. Nomor transaksi '.$sale->number.'. Total Rp '.number_format($sale->total, 0, ',', '.').'.');
