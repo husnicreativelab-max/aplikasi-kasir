@@ -34,7 +34,7 @@ class StockLedger
             throw new LogicException('Arah dan jumlah perubahan stok tidak valid.');
         }
 
-        $product = Product::query()->whereKey($productId)->lockForUpdate()->firstOrFail();
+        $product = Product::withTrashed()->whereKey($productId)->lockForUpdate()->firstOrFail();
 
         if ($product->type !== 'barang') {
             throw ValidationException::withMessages([

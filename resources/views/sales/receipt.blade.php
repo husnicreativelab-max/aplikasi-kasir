@@ -24,16 +24,28 @@
         .totals td { padding:0.7mm 0; }
         .total-line { font-size:14px; font-weight:bold; }
         .receipt-footer { margin-top:3mm; white-space:pre-line; }
-        .action-bar { width:min(100%,{{ $paperWidth }}mm); margin:12px auto; display:flex; justify-content:center; gap:8px; }
+        .action-bar { width:min(calc(100% - 24px),760px); margin:12px auto; display:flex; flex-wrap:wrap; justify-content:center; gap:8px; }
         @media print { body { background:#fff; } .receipt { min-height:0; margin:0; } .no-print { display:none !important; } }
     </style>
 </head>
 <body>
     <div class="action-bar no-print">
         <button onclick="window.print()" class="brutal-btn bg-primary"><x-icon name="print" class="h-5 w-5"/>Cetak struk</button>
-        @if($whatsapp)<a target="_blank" rel="noopener" href="https://wa.me/{{ $whatsapp }}?text={{ $whatsappText }}" class="brutal-btn bg-success">Kirim WhatsApp</a>@endif
+        @if($whatsapp && $sale->status === 'completed')<a target="_blank" rel="noopener" href="https://wa.me/{{ $whatsapp }}?text={{ $whatsappText }}" class="brutal-btn bg-success">Kirim WhatsApp</a>@endif
+        <a href="{{ route('sales.index') }}" class="brutal-btn bg-white">Riwayat transaksi</a>
         <a href="{{ route('pos.index') }}" class="brutal-btn bg-white">Transaksi baru</a>
     </div>
+    @if(auth()->user()->isAdmin() && $sale->status === 'completed')
+        <form method="POST" action="{{ route('sales.cancel', $sale) }}" class="no-print mx-auto mb-3 w-full max-w-2xl rounded-card border-2 border-ink bg-danger/20 p-4" onsubmit="return window.confirm('Batalkan transaksi ini dan kembalikan stok barang?')">
+            @csrf
+            <h2 class="font-extrabold">Pembatalan / retur seluruh transaksi</h2>
+            <p class="mt-1 text-sm">Hanya Admin. Stok barang akan dikembalikan dan transaksi dikeluarkan dari laporan. Pengembalian uang tidak diproses otomatis.</p>
+            <label class="mt-3 block text-sm font-bold" for="cancellation-reason">Alasan pembatalan <span class="text-danger">*</span></label>
+            <textarea id="cancellation-reason" name="reason" rows="2" minlength="3" maxlength="1000" class="brutal-input mt-1" required>{{ old('reason') }}</textarea>
+            @error('reason')<p class="form-error">{{ $message }}</p>@enderror
+            <button type="submit" class="brutal-btn mt-3 bg-danger">Batalkan transaksi &amp; kembalikan stok</button>
+        </form>
+    @endif
     <main class="receipt">
         <header class="center">
             @if(($store['show_receipt_logo'] ?? '1') && !empty($store['logo_path']))<img class="shop-logo" src="{{ asset('storage/'.$store['logo_path']) }}" alt="Logo {{ $store['short_name'] ?? '' }}">@endif
@@ -48,6 +60,12 @@
             <tr><td>Tanggal</td><td class="right">{{ $sale->sold_at->timezone(config('app.timezone'))->translatedFormat('d/m/Y H:i') }}</td></tr>
             <tr><td>Kasir</td><td class="right">{{ $sale->user?->name ?? 'Kasir' }}</td></tr>
         </tbody></table>
+        @if($sale->status === 'cancelled')
+            <hr class="rule">
+            <div class="center bold">TRANSAKSI DIBATALKAN / DIRETUR</div>
+            <div>Alasan: {{ $sale->cancellation_reason }}</div>
+            <div>Oleh: {{ $sale->cancelledBy?->name ?? 'Admin' }} · {{ $sale->cancelled_at?->timezone(config('app.timezone'))->translatedFormat('d/m/Y H:i') }}</div>
+        @endif
         <hr class="rule">
         <table class="receipt-table"><tbody>
             @foreach($sale->items as $item)

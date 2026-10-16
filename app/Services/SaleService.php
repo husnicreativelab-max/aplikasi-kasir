@@ -112,6 +112,7 @@ class SaleService
                     'sale_id' => $sale->id,
                     'product_id' => $product->id,
                     'product_name' => $product->name,
+                    'product_type' => $product->type,
                     'unit' => $product->unit,
                     'barcode' => $product->barcode,
                     'quantity' => $line['quantity'],

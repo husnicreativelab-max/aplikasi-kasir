@@ -2,6 +2,7 @@
     <div x-show="menuOpen" x-cloak x-transition.opacity class="fixed inset-0 z-40 bg-ink/40" @click="menuOpen = false"></div>
     <div x-show="menuOpen" x-cloak x-transition class="fixed bottom-[74px] left-3 right-3 z-50 rounded-card border-2 border-ink bg-white p-3 shadow-brutal" aria-label="Menu lainnya">
         <div class="grid grid-cols-2 gap-2">
+            <a class="nav-link" href="{{ route('sales.index') }}"><x-icon name="receipt" class="h-5 w-5"/>Riwayat transaksi</a>
             @if(auth()->user()->isAdmin())<a class="nav-link" href="{{ route('goods-in.index') }}"><x-icon name="plus" class="h-5 w-5"/>Barang Masuk</a>@endif
             <a class="nav-link" href="{{ route('services.index') }}"><x-icon name="tool" class="h-5 w-5"/>Service</a>
             @if(auth()->user()->isAdmin())

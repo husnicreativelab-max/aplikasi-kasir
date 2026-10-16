@@ -12,7 +12,17 @@ Aplikasi POS untuk toko komputer kecil, dibuat dengan Laravel 13, Blade, Tailwin
 - Cetak struk thermal 58 mm/80 mm, ringkasan dashboard, dan laporan penjualan dasar.
 - Data contoh kategori/produk dan pengaturan awal toko dari seeder.
 
-Barang Masuk, service komputer, retur/pembatalan, PWA/offline, laporan laba/stok/service, dan ekspor akan dikerjakan pada fase berikutnya sesuai urutan kerja.
+## Fase 2 yang tersedia
+
+- **Barang masuk** (Admin): catat produk, jumlah, harga beli terbaru, total pembelian, petugas, waktu, dan catatan. Stok ditambah melalui ledger mutasi dalam transaksi database.
+- **Service komputer**: catat pelanggan dan perangkat, nomor seri, keluhan, aksesori/kondisi awal, kata sandi/PIN perangkat opsional (disimpan terenkripsi), estimasi dan DP; gunakan status Diterima, Dicek, Menunggu Konfirmasi, Dikerjakan, Selesai, dan Diambil.
+- Tambahkan sparepart (mengurangi stok dan tercatat di ledger) serta biaya jasa; catat pembayaran bertahap/pelunasan, riwayat status, nota penerimaan, dan nota pengambilan thermal hitam-putih.
+- **Riwayat transaksi** untuk mencari struk; hanya Admin dapat membatalkan/meretur seluruh transaksi. Barang fisik dikembalikan ke stok, transaksi dikeluarkan dari laporan, alasan dan pelaku dicatat. Pengembalian uang tidak diproses otomatis.
+- Service yang sudah diambil tidak dapat diubah; perangkat hanya bisa ditandai Diambil setelah sisa tagihan lunas.
+
+## Fase berikutnya
+
+Fase 3: PWA, laporan/ekspor lanjutan, cek status service publik, dan integrasi WhatsApp. Fase 4: pengujian lanjutan, optimasi, deployment, serta dokumentasi operasional.
 
 ## Kebutuhan
 
@@ -74,7 +84,7 @@ Konfigurasi PHPUnit menggunakan SQLite in-memory, sehingga pengujian tidak mengu
 php artisan test
 ```
 
-Tes fase ini mencakup checkout dan pengurangan stok, penolakan stok tidak cukup tanpa transaksi parsial, pencatatan stok awal, akses berbasis role, serta kewajiban ganti kata sandi.
+Tes mencakup checkout dan pengurangan stok, penolakan stok tidak cukup tanpa transaksi parsial, pencatatan stok awal/barang masuk, batas akses Admin, pembatalan penjualan dan pengembalian stok, penerimaan service dengan enkripsi data akses perangkat, pengurangan stok sparepart, pencatatan jasa/DP/pembayaran, alur status, serta kewajiban ganti kata sandi. Jalankan tes setelah migrasi di lingkungan PHP/MySQL/SQLite yang sesuai.
 
 ## Catatan pengaturan toko
 

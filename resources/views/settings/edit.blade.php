@@ -38,7 +38,7 @@
         </div>
     </x-card>
     <x-card title="Syarat service" icon="tool" tone="info">
-        <x-field label="Syarat dan garansi service" name="service_terms" hint="Teks ini akan dicetak pada nota service di Fase 2."><textarea id="service_terms" name="service_terms" rows="4" class="brutal-input min-h-28" maxlength="5000">{{ old('service_terms', $settings['service_terms'] ?? '') }}</textarea></x-field>
+        <x-field label="Syarat dan garansi service" name="service_terms" hint="Teks ini dicetak pada nota penerimaan dan pengambilan service."><textarea id="service_terms" name="service_terms" rows="4" class="brutal-input min-h-28" maxlength="5000">{{ old('service_terms', $settings['service_terms'] ?? '') }}</textarea></x-field>
     </x-card>
     <x-card title="Aturan stok" icon="box" tone="warning">
         <label class="flex min-h-14 items-center gap-3 rounded-button border-2 border-ink bg-white px-3 font-bold"><input type="checkbox" name="allow_negative_stock" value="1" @checked(old('allow_negative_stock', $settings['allow_negative_stock'] ?? '0')) class="h-6 w-6 rounded border-2 border-ink text-success focus:ring-primary"> Izinkan stok minus saat transaksi <span class="ml-auto rounded-pill border-2 border-ink bg-warning px-2 py-1 text-xs">Opsional</span></label>

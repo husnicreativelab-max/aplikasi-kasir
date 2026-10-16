@@ -42,4 +42,14 @@ class User extends Authenticatable
     {
         return $this->hasMany(Sale::class);
     }
+
+    public function stockIns()
+    {
+        return $this->hasMany(StockIn::class);
+    }
+
+    public function receivedServices()
+    {
+        return $this->hasMany(Service::class, 'received_by');
+    }
 }

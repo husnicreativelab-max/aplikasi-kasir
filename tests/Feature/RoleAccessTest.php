@@ -26,6 +26,8 @@ class RoleAccessTest extends TestCase
         $this->actingAs($cashier)->get(route('users.index'))->assertForbidden();
         $this->actingAs($cashier)->get(route('goods-in.index'))->assertForbidden();
         $this->actingAs($cashier)->get(route('products.create'))->assertForbidden();
+        $this->actingAs($cashier)->get(route('services.index'))->assertOk();
+        $this->actingAs($cashier)->get(route('sales.index'))->assertOk();
     }
 
     public function test_cashier_can_view_products_without_purchase_price(): void

@@ -12,6 +12,7 @@ class Sale extends Model
     protected $fillable = [
         'number', 'user_id', 'subtotal', 'discount_type', 'discount_value', 'discount_total',
         'total', 'payment_method', 'amount_paid', 'change_due', 'status', 'notes', 'sold_at',
+        'cancelled_at', 'cancelled_by', 'cancellation_reason',
     ];
 
     protected function casts(): array
@@ -24,6 +25,7 @@ class Sale extends Model
             'amount_paid' => 'integer',
             'change_due' => 'integer',
             'sold_at' => 'datetime',
+            'cancelled_at' => 'datetime',
         ];
     }
 
@@ -35,6 +37,11 @@ class Sale extends Model
     public function items(): HasMany
     {
         return $this->hasMany(SaleItem::class);
+    }
+
+    public function cancelledBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'cancelled_by');
     }
 
     public function scopeCompleted(Builder $query): Builder

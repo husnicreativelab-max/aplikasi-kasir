@@ -4,12 +4,13 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PasswordController;
-use App\Http\Controllers\PlaceholderController;
 use App\Http\Controllers\PosController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SaleController;
+use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\StockInController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -28,8 +29,10 @@ Route::middleware(['auth', 'force.password.change'])->group(function (): void {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
     Route::get('/kasir', [PosController::class, 'index'])->name('pos.index');
     Route::get('/kasir/cari', [PosController::class, 'search'])->name('pos.search');
+    Route::get('/transaksi/riwayat', [SaleController::class, 'index'])->name('sales.index');
     Route::post('/transaksi', [SaleController::class, 'store'])->name('sales.store');
     Route::get('/transaksi/{sale}/struk', [SaleController::class, 'receipt'])->name('sales.receipt');
+    Route::post('/transaksi/{sale}/batalkan', [SaleController::class, 'cancel'])->middleware('role:admin')->name('sales.cancel');
 
     Route::get('/produk', [ProductController::class, 'index'])->name('products.index');
     Route::middleware('role:admin')->group(function (): void {
@@ -58,6 +61,23 @@ Route::middleware(['auth', 'force.password.change'])->group(function (): void {
         Route::patch('/pengaturan/pengguna/{user}/status', [UserController::class, 'toggleStatus'])->name('users.toggle-status');
     });
 
-    Route::get('/barang-masuk', [PlaceholderController::class, 'goodsIn'])->middleware('role:admin')->name('goods-in.index');
-    Route::get('/service', [PlaceholderController::class, 'service'])->name('services.index');
+    Route::middleware('role:admin')->group(function (): void {
+        Route::get('/barang-masuk', [StockInController::class, 'index'])->name('goods-in.index');
+        Route::post('/barang-masuk', [StockInController::class, 'store'])->name('goods-in.store');
+    });
+
+    Route::middleware('role:admin,kasir')->group(function (): void {
+        Route::get('/service', [ServiceController::class, 'index'])->name('services.index');
+        Route::get('/service/tambah', [ServiceController::class, 'create'])->name('services.create');
+        Route::post('/service', [ServiceController::class, 'store'])->name('services.store');
+        Route::get('/service/{service}', [ServiceController::class, 'show'])->name('services.show');
+        Route::get('/service/{service}/nota/terima', [ServiceController::class, 'intakeReceipt'])->name('services.receipt.intake');
+        Route::get('/service/{service}/nota/ambil', [ServiceController::class, 'releaseReceipt'])->name('services.receipt.release');
+        Route::post('/service/{service}/sparepart', [ServiceController::class, 'addPart'])->name('services.parts.store');
+        Route::post('/service/{service}/jasa', [ServiceController::class, 'addLabor'])->name('services.labor.store');
+        Route::patch('/service/{service}/status', [ServiceController::class, 'updateStatus'])->name('services.status.update');
+        Route::patch('/service/{service}/estimasi', [ServiceController::class, 'estimate'])->name('services.estimate.update');
+        Route::post('/service/{service}/pembayaran', [ServiceController::class, 'payment'])->name('services.payment.store');
+        Route::post('/service/{service}/batalkan', [ServiceController::class, 'cancel'])->middleware('role:admin')->name('services.cancel');
+    });
 });
