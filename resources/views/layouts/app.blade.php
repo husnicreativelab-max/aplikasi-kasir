@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="theme-color" content="{{ $store['theme_color'] ?? '#FFD93D' }}">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="{{ route('pwa.manifest') }}">
+    <link rel="apple-touch-icon" href="{{ asset('icons/apple-touch-icon.png') }}">
     <title>@yield('title', 'Dashboard') · {{ $store['short_name'] ?? 'Kasir' }}</title>
     <style>:root { --color-primary: {{ $store['theme_color'] ?? '#FFD93D' }}; }</style>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -47,6 +52,10 @@
             </div>
         </header>
         <main class="mx-auto min-h-[calc(100vh-68px)] w-full max-w-[1600px] px-4 pb-32 pt-5 sm:px-6 sm:pt-7 lg:px-8 lg:pb-10">
+            <div id="pwa-install-banner" hidden class="mb-5 flex flex-col gap-3 rounded-card border-2 border-ink bg-info p-4 shadow-brutal-sm sm:flex-row sm:items-center sm:justify-between">
+                <div><p class="font-extrabold">Pasang aplikasi kasir</p><p class="text-sm">Buka aplikasi kasir dari layar utama perangkat Anda.</p></div>
+                <div class="flex gap-2"><button id="pwa-install-button" type="button" class="brutal-btn bg-primary">Pasang</button><button id="pwa-dismiss-button" type="button" class="brutal-btn bg-white" aria-label="Tutup pemberitahuan">Nanti</button></div>
+            </div>
             @yield('content')
         </main>
     </div>

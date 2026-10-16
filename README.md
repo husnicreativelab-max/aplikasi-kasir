@@ -20,9 +20,16 @@ Aplikasi POS untuk toko komputer kecil, dibuat dengan Laravel 13, Blade, Tailwin
 - **Riwayat transaksi** untuk mencari struk; hanya Admin dapat membatalkan/meretur seluruh transaksi. Barang fisik dikembalikan ke stok, transaksi dikeluarkan dari laporan, alasan dan pelaku dicatat. Pengembalian uang tidak diproses otomatis.
 - Service yang sudah diambil tidak dapat diubah; perangkat hanya bisa ditandai Diambil setelah sisa tagihan lunas.
 
+## Fase 3 yang tersedia
+
+- **PWA installable** dengan manifest dinamis mengikuti nama/warna toko, ikon aplikasi, prompt pemasangan, service worker, cache terbatas untuk shell/aset statis, dan halaman fallback saat offline. Halaman dinamis, transaksi, data pelanggan, dan API tidak di-cache; perubahan data tetap memerlukan koneksi.
+- **Laporan Admin** dapat difilter menurut rentang tanggal dan metode pembayaran. Unduh CSV terpisah untuk penjualan/item (termasuk modal dan laba kotor sebelum diskon), mutasi ledger stok, dan ringkasan service; masing-masing punya filter relevan. Ekspor memakai UTF-8, melindungi sel dari formula CSV, dan endpoint dibatasi untuk Admin.
+- **Cek status service publik** meminta nomor service serta kode acak 24 karakter pada nota. Kode disimpan dalam bentuk hash untuk pencarian dan terenkripsi untuk pencetakan ulang. Halaman publik hanya menampilkan perangkat/model umum, status, tanggal, dan riwayat status publik—bukan nama/telepon, nomor seri, keluhan, PIN, catatan internal, atau kode rahasia. Endpoint cek status dibatasi laju permintaannya.
+- Kode cek status tercetak pada nota penerimaan dan pengambilan, serta tersedia pada detail service internal. **WhatsApp memakai click-to-chat** dengan nomor yang dinormalisasi ke format internasional; tidak ada pengiriman otomatis atau integrasi API.
+
 ## Fase berikutnya
 
-Fase 3: PWA, laporan/ekspor lanjutan, cek status service publik, dan integrasi WhatsApp. Fase 4: pengujian lanjutan, optimasi, deployment, serta dokumentasi operasional.
+Fase 4 (hanya setelah diminta): pengujian lanjutan, optimasi, deployment, serta dokumentasi operasional.
 
 ## Kebutuhan
 
@@ -84,7 +91,7 @@ Konfigurasi PHPUnit menggunakan SQLite in-memory, sehingga pengujian tidak mengu
 php artisan test
 ```
 
-Tes mencakup checkout dan pengurangan stok, penolakan stok tidak cukup tanpa transaksi parsial, pencatatan stok awal/barang masuk, batas akses Admin, pembatalan penjualan dan pengembalian stok, penerimaan service dengan enkripsi data akses perangkat, pengurangan stok sparepart, pencatatan jasa/DP/pembayaran, alur status, serta kewajiban ganti kata sandi. Jalankan tes setelah migrasi di lingkungan PHP/MySQL/SQLite yang sesuai.
+Tes mencakup checkout dan pengurangan stok, penolakan stok tidak cukup tanpa transaksi parsial, pencatatan stok awal/barang masuk, batas akses Admin, pembatalan penjualan dan pengembalian stok, penerimaan service dengan enkripsi data akses perangkat, pengurangan stok sparepart, pencatatan jasa/DP/pembayaran, alur status, kewajiban ganti kata sandi, privasi lookup service publik, akses ekspor Admin, CSV, manifest PWA, serta normalisasi tautan WhatsApp. Jalankan tes setelah migrasi di lingkungan PHP/MySQL/SQLite yang sesuai.
 
 ## Catatan pengaturan toko
 

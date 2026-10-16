@@ -6,6 +6,9 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PasswordController;
 use App\Http\Controllers\PosController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\PublicServiceStatusController;
+use App\Http\Controllers\PwaController;
+use App\Http\Controllers\ReportExportController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\SaleController;
 use App\Http\Controllers\ServiceController;
@@ -15,6 +18,10 @@ use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', fn () => auth()->check() ? redirect()->route('dashboard') : redirect()->route('login'));
+
+Route::get('/manifest.webmanifest', [PwaController::class, 'manifest'])->name('pwa.manifest');
+Route::get('/cek-service', [PublicServiceStatusController::class, 'index'])->name('public.services.index');
+Route::post('/cek-service', [PublicServiceStatusController::class, 'check'])->middleware('throttle:10,1')->name('public.services.check');
 
 Route::middleware('guest')->group(function (): void {
     Route::get('/masuk', [AuthenticatedSessionController::class, 'create'])->name('login');
@@ -50,6 +57,9 @@ Route::middleware(['auth', 'force.password.change'])->group(function (): void {
         Route::delete('/kategori/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy');
 
         Route::get('/laporan', [ReportController::class, 'index'])->name('reports.index');
+        Route::get('/laporan/ekspor/penjualan', [ReportExportController::class, 'sales'])->name('reports.export.sales');
+        Route::get('/laporan/ekspor/stok', [ReportExportController::class, 'stockMovements'])->name('reports.export.stock');
+        Route::get('/laporan/ekspor/service', [ReportExportController::class, 'services'])->name('reports.export.services');
         Route::get('/pengaturan', [SettingsController::class, 'edit'])->name('settings.edit');
         Route::put('/pengaturan', [SettingsController::class, 'update'])->name('settings.update');
 

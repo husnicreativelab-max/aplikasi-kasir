@@ -7,6 +7,7 @@ use App\Models\SaleItem;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
@@ -17,10 +18,12 @@ class ReportController extends Controller
         $validated = $request->validate([
             'from' => ['nullable', 'date_format:Y-m-d'],
             'to' => ['nullable', 'date_format:Y-m-d'],
+            'payment_method' => ['nullable', Rule::in(['tunai', 'transfer', 'qris'])],
         ]);
 
         $fromDate = $validated['from'] ?? today(config('app.timezone'))->toDateString();
         $toDate = $validated['to'] ?? $fromDate;
+        $paymentMethod = $validated['payment_method'] ?? null;
 
         if ($fromDate > $toDate) {
             throw ValidationException::withMessages(['from' => 'Tanggal awal tidak boleh melewati tanggal akhir.']);
@@ -28,7 +31,10 @@ class ReportController extends Controller
 
         $from = Carbon::parse($fromDate, config('app.timezone'))->startOfDay();
         $to = Carbon::parse($toDate, config('app.timezone'))->endOfDay();
-        $base = Sale::query()->completed()->whereBetween('sold_at', [$from, $to]);
+        $base = Sale::query()
+            ->completed()
+            ->whereBetween('sold_at', [$from, $to])
+            ->when($paymentMethod, fn ($query) => $query->where('payment_method', $paymentMethod));
 
         $totalSales = (clone $base)->sum('total');
         $transactionCount = (clone $base)->count();
@@ -49,7 +55,11 @@ class ReportController extends Controller
 
         $topProducts = SaleItem::query()
             ->select('product_name', DB::raw('SUM(quantity) as quantity_sold'), DB::raw('SUM(line_total) as sales_total'))
-            ->whereHas('sale', fn ($query) => $query->completed()->whereBetween('sold_at', [$from, $to]))
+            ->whereHas('sale', function ($query) use ($from, $to, $paymentMethod): void {
+                $query->completed()
+                    ->whereBetween('sold_at', [$from, $to])
+                    ->when($paymentMethod, fn ($saleQuery) => $saleQuery->where('payment_method', $paymentMethod));
+            })
             ->groupBy('product_name')
             ->orderByDesc('quantity_sold')
             ->limit(8)
@@ -59,12 +69,13 @@ class ReportController extends Controller
             ->select(DB::raw('DATE(sold_at) as sale_date'), DB::raw('COUNT(*) as transaction_count'), DB::raw('SUM(total) as amount_total'))
             ->where('status', 'completed')
             ->whereBetween('sold_at', [$from, $to])
+            ->when($paymentMethod, fn ($query) => $query->where('payment_method', $paymentMethod))
             ->groupBy(DB::raw('DATE(sold_at)'))
             ->orderBy('sale_date')
             ->get();
 
         return view('reports.index', compact(
-            'fromDate', 'toDate', 'totalSales', 'transactionCount', 'averageSale',
+            'fromDate', 'toDate', 'paymentMethod', 'totalSales', 'transactionCount', 'averageSale',
             'paymentTotals', 'cashierTotals', 'topProducts', 'dailyTotals',
         ));
     }

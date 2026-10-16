@@ -23,9 +23,10 @@ class Service extends Model
         'device_type', 'brand_model', 'serial_number', 'complaint', 'accessories',
         'device_password', 'estimated_cost', 'deposit_amount', 'paid_total', 'status',
         'received_at', 'completed_at', 'taken_at', 'cancelled_at', 'cancelled_by', 'cancellation_reason',
+        'tracking_code_hash', 'tracking_code_encrypted',
     ];
 
-    protected $hidden = ['device_password'];
+    protected $hidden = ['device_password', 'tracking_code_hash', 'tracking_code_encrypted'];
 
     protected function casts(): array
     {
@@ -65,6 +66,11 @@ class Service extends Model
         return $this->hasMany(ServiceStatusLog::class)->orderByDesc('created_at');
     }
 
+    public function publicStatusLogs(): HasMany
+    {
+        return $this->hasMany(ServiceStatusLog::class)->where('is_public', true)->orderBy('created_at');
+    }
+
     public function payments(): HasMany
     {
         return $this->hasMany(ServicePayment::class)->orderBy('paid_at');
@@ -90,12 +96,22 @@ class Service extends Model
 
     public function getDevicePasswordForDisplayAttribute(): ?string
     {
-        if (! $this->device_password) {
+        return $this->decryptOptional($this->device_password);
+    }
+
+    public function getTrackingCodeForDisplayAttribute(): ?string
+    {
+        return $this->decryptOptional($this->tracking_code_encrypted);
+    }
+
+    private function decryptOptional(?string $value): ?string
+    {
+        if (! $value) {
             return null;
         }
 
         try {
-            return Crypt::decryptString($this->device_password);
+            return Crypt::decryptString($value);
         } catch (DecryptException) {
             return null;
         }

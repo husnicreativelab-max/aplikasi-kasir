@@ -12,6 +12,7 @@ use App\Http\Requests\UpdateServiceEstimateRequest;
 use App\Models\Product;
 use App\Models\Service;
 use App\Services\ServiceWorkflowService;
+use App\Support\WhatsAppLink;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -62,9 +63,14 @@ class ServiceController extends Controller
             'customer', 'receivedBy', 'cancelledBy', 'items.product',
             'payments.user', 'statusLogs.user',
         ]);
+        $trackingCode = $service->tracking_code_for_display;
+        $message = "Halo {$service->customer_name}, pembaruan service {$service->number}: status saat ini {$service->status}. Cek di ".route('public.services.index')." dengan kode {$trackingCode}.";
+        $whatsappUrl = $trackingCode ? WhatsAppLink::url($service->customer_phone, $message) : null;
 
         return view('services.show', [
             'service' => $service,
+            'trackingCode' => $trackingCode,
+            'whatsappUrl' => $whatsappUrl,
             'products' => Product::query()
                 ->available()
                 ->goods()

@@ -293,3 +293,48 @@ function renderBarcodes() {
 document.addEventListener('DOMContentLoaded', renderBarcodes);
 window.addEventListener('beforeprint', renderBarcodes);
 Alpine.start();
+
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(() => {});
+    });
+}
+
+const installBanner = document.getElementById('pwa-install-banner');
+const installButton = document.getElementById('pwa-install-button');
+const dismissInstallButton = document.getElementById('pwa-dismiss-button');
+let pendingInstallPrompt = null;
+
+window.addEventListener('beforeinstallprompt', (event) => {
+    event.preventDefault();
+    pendingInstallPrompt = event;
+    let dismissed = false;
+    try {
+        dismissed = window.localStorage.getItem('rpcom-pwa-install-dismissed') === '1';
+    } catch (_) {
+        // Penyimpanan browser opsional.
+    }
+    if (installBanner && !dismissed) installBanner.hidden = false;
+});
+
+installButton?.addEventListener('click', async () => {
+    if (!pendingInstallPrompt) return;
+    pendingInstallPrompt.prompt();
+    await pendingInstallPrompt.userChoice;
+    pendingInstallPrompt = null;
+    if (installBanner) installBanner.hidden = true;
+});
+
+dismissInstallButton?.addEventListener('click', () => {
+    if (installBanner) installBanner.hidden = true;
+    try {
+        window.localStorage.setItem('rpcom-pwa-install-dismissed', '1');
+    } catch (_) {
+        // Pemberitahuan hanya disembunyikan untuk halaman saat ini.
+    }
+});
+
+window.addEventListener('appinstalled', () => {
+    if (installBanner) installBanner.hidden = true;
+    pendingInstallPrompt = null;
+});

@@ -19,7 +19,7 @@ class AppServiceProvider extends ServiceProvider
     {
         Carbon::setLocale('id');
 
-        View::composer(['layouts.*', 'sales.receipt', 'services.receipt', 'products.labels'], function ($view): void {
+        View::composer(['layouts.*', 'sales.receipt', 'services.receipt', 'products.labels', 'public-services.*'], function ($view): void {
             $store = [];
 
             if (Schema::hasTable('settings')) {

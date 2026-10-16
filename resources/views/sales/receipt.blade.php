@@ -1,7 +1,7 @@
 @php
     $paperWidth = in_array((string) ($store['receipt_width_mm'] ?? '58'), ['58', '80'], true) ? $store['receipt_width_mm'] : '58';
     $paymentLabels = ['tunai' => 'Tunai', 'transfer' => 'Transfer', 'qris' => 'QRIS (manual)'];
-    $whatsapp = preg_replace('/[^0-9]/', '', (string) ($store['whatsapp'] ?? ''));
+    $whatsapp = \App\Support\WhatsAppLink::normalizeNumber($store['whatsapp'] ?? null);
     $whatsappText = rawurlencode('Terima kasih telah berbelanja di '.($store['store_name'] ?? 'toko kami').'. Nomor transaksi '.$sale->number.'. Total Rp '.number_format($sale->total, 0, ',', '.').'.');
 @endphp
 <!doctype html>
@@ -31,7 +31,7 @@
 <body>
     <div class="action-bar no-print">
         <button onclick="window.print()" class="brutal-btn bg-primary"><x-icon name="print" class="h-5 w-5"/>Cetak struk</button>
-        @if($whatsapp && $sale->status === 'completed')<a target="_blank" rel="noopener" href="https://wa.me/{{ $whatsapp }}?text={{ $whatsappText }}" class="brutal-btn bg-success">Kirim WhatsApp</a>@endif
+        @if($whatsapp && $sale->status === 'completed')<a target="_blank" rel="noopener noreferrer" href="https://wa.me/{{ $whatsapp }}?text={{ $whatsappText }}" class="brutal-btn bg-success">Kirim WhatsApp</a>@endif
         <a href="{{ route('sales.index') }}" class="brutal-btn bg-white">Riwayat transaksi</a>
         <a href="{{ route('pos.index') }}" class="brutal-btn bg-white">Transaksi baru</a>
     </div>

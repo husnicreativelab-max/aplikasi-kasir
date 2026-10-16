@@ -23,6 +23,7 @@
         @case('receipt') <path d="M5 3h14v18l-3-2-4 2-4-2-3 2V3Z"/><path d="M8 8h8M8 12h8M8 16h4"/> @break
         @case('wallet') <path d="M4 6h15a2 2 0 0 1 2 2v12H4a2 2 0 0 1-2-2V6a3 3 0 0 1 3-3h13"/><path d="M16 13h5M17 13h.01"/> @break
         @case('clock') <circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/> @break
+        @case('message') <path d="M20 11.5a7.5 7.5 0 0 1-7.5 7.5 7.8 7.8 0 0 1-3.2-.7L4 20l1.7-4.2a7.5 7.5 0 1 1 14.3-4.3Z"/><path d="M8.5 11.5h.01M12 11.5h.01M15.5 11.5h.01"/> @break
         @default <circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v4h1"/>
     @endswitch
 </svg>

@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="id">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#FFD93D">
+    <title>Offline · Aplikasi kasir</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 20px; background: #FFF9E8; color: #1A1A1A; font: 16px/1.5 system-ui, sans-serif; }
+        main { width: min(100%, 520px); padding: 28px; border: 3px solid #1A1A1A; border-radius: 16px; background: #fff; box-shadow: 8px 8px 0 #1A1A1A; text-align: center; }
+        .mark { width: 76px; height: 76px; margin: 0 auto 16px; display: grid; place-items: center; border: 3px solid #1A1A1A; border-radius: 18px; background: #FFD93D; font-size: 38px; font-weight: 900; }
+        h1 { margin: 0; font-size: 26px; }
+        p { margin: 10px 0 0; color: #454545; }
+        button { min-height: 48px; margin-top: 20px; padding: 10px 18px; border: 2px solid #1A1A1A; border-radius: 8px; background: #FFD93D; box-shadow: 4px 4px 0 #1A1A1A; color: inherit; font: inherit; font-weight: 800; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <main>
+        <div class="mark" aria-hidden="true">⌁</div>
+        <h1>Koneksi internet terputus</h1>
+        <p>Halaman ini belum tersedia secara offline. Periksa koneksi, lalu coba lagi. Transaksi dan perubahan data memerlukan koneksi aktif.</p>
+        <button type="button" onclick="window.location.reload()">Coba lagi</button>
+    </main>
+</body>
+</html>

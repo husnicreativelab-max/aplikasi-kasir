@@ -4,6 +4,7 @@
     $totalCost = $service->totalCost();
     $balanceDue = $service->balanceDue();
     $paymentLabels = ['tunai' => 'Tunai', 'transfer' => 'Transfer', 'qris' => 'QRIS'];
+    $whatsappUrl = \App\Support\WhatsAppLink::url($store['whatsapp'] ?? null, 'Halo, saya ingin menanyakan service '.$service->number.'.');
 @endphp
 <!doctype html>
 <html lang="id">
@@ -32,6 +33,7 @@
 <body>
     <div class="actions no-print">
         <button class="action" onclick="window.print()">Cetak nota</button>
+        @if($whatsappUrl)<a class="action" href="{{ $whatsappUrl }}" target="_blank" rel="noopener noreferrer">WhatsApp toko</a>@endif
         <a class="action" href="{{ route('services.show', $service) }}">Kembali ke service</a>
     </div>
     <main class="ticket">
@@ -55,6 +57,10 @@
         <hr class="rule">
         <div class="bold">Keluhan pelanggan</div><div class="wrap">{{ $service->complaint }}</div>
         <div class="bold" style="margin-top:2mm">Aksesori / kondisi awal</div><div class="wrap">{{ $service->accessories ?: 'Tidak ada aksesori yang dicatat.' }}</div>
+        <hr class="rule">
+        <div class="bold">Kode cek status online</div>
+        <div style="font-size:12px;font-weight:bold;letter-spacing:1px;overflow-wrap:anywhere">{{ $service->tracking_code_for_display }}</div>
+        <div>Masukkan nomor service dan kode ini di {{ url('/cek-service') }}. Jangan bagikan kode kepada orang lain.</div>
         <hr class="rule">
         @if(!$isRelease)
             <table class="ticket-table"><tbody>

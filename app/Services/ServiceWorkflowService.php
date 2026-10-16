@@ -12,6 +12,7 @@ use App\Models\User;
 use App\Support\ActivityLogger;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 class ServiceWorkflowService
@@ -46,8 +47,11 @@ class ServiceWorkflowService
                 throw ValidationException::withMessages(['deposit_received' => 'Uang muka tunai yang diterima belum mencukupi.']);
             }
 
+            $trackingCode = Str::upper(Str::random(24));
             $service = Service::query()->create([
                 'number' => $this->documentNumbers->next('SRV'),
+                'tracking_code_hash' => hash('sha256', $trackingCode),
+                'tracking_code_encrypted' => Crypt::encryptString($trackingCode),
                 'customer_id' => $customer->id,
                 'received_by' => $user->id,
                 'customer_name' => $data['customer_name'],
@@ -235,7 +239,7 @@ class ServiceWorkflowService
             if ($note !== '') {
                 $logNote .= ' '.$note;
             }
-            $this->logStatus($lockedService, $user, $lockedService->status, $logNote);
+            $this->logStatus($lockedService, $user, $lockedService->status, $logNote, isPublic: false);
             ActivityLogger::log('service.estimate_updated', Service::class, $lockedService->id, "Estimasi service {$lockedService->number} diperbarui.", [
                 'from' => $previousEstimate,
                 'to' => $newEstimate,
@@ -357,13 +361,14 @@ class ServiceWorkflowService
         }
     }
 
-    private function logStatus(Service $service, User $user, string $status, ?string $note): void
+    private function logStatus(Service $service, User $user, string $status, ?string $note, bool $isPublic = true): void
     {
         ServiceStatusLog::query()->create([
             'service_id' => $service->id,
             'user_id' => $user->id,
             'status' => $status,
             'note' => $note,
+            'is_public' => $isPublic,
             'created_at' => now(config('app.timezone')),
         ]);
     }

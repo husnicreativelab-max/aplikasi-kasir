@@ -24,13 +24,18 @@
     <a href="{{ route('services.index') }}" class="inline-flex min-h-10 items-center gap-2 text-sm font-bold underline decoration-2 underline-offset-4">← Kembali ke daftar service</a>
     <div class="mt-2 flex flex-col justify-between gap-3 md:flex-row md:items-end">
         <div><p class="text-sm font-bold text-ink/60">Detail penerimaan dan pengerjaan</p><h1 class="text-3xl font-extrabold">{{ $service->number }}</h1><p class="mt-1 text-sm text-ink/70">Diterima {{ $service->received_at->timezone(config('app.timezone'))->translatedFormat('d M Y, H:i') }} WIB</p></div>
-        <div class="flex flex-wrap gap-2"><x-badge :variant="$statusVariants[$service->status] ?? 'neutral'">{{ $service->status }}</x-badge><x-button as="a" href="{{ route('services.receipt.intake', $service) }}" variant="neutral" size="sm"><x-icon name="print" class="h-4 w-4"/>Nota penerimaan</x-button>@if($service->status === 'Diambil')<x-button as="a" href="{{ route('services.receipt.release', $service) }}" variant="primary" size="sm"><x-icon name="print" class="h-4 w-4"/>Nota pengambilan</x-button>@endif</div>
+        <div class="flex flex-wrap gap-2"><x-badge :variant="$statusVariants[$service->status] ?? 'neutral'">{{ $service->status }}</x-badge>@if($whatsappUrl)<x-button as="a" href="{{ $whatsappUrl }}" target="_blank" rel="noopener noreferrer" variant="success" size="sm"><x-icon name="message" class="h-4 w-4"/>Kirim WhatsApp</x-button>@endif<x-button as="a" href="{{ route('services.receipt.intake', $service) }}" variant="neutral" size="sm"><x-icon name="print" class="h-4 w-4"/>Nota penerimaan</x-button>@if($service->status === 'Diambil')<x-button as="a" href="{{ route('services.receipt.release', $service) }}" variant="primary" size="sm"><x-icon name="print" class="h-4 w-4"/>Nota pengambilan</x-button>@endif</div>
     </div>
 </div>
 
 @if($service->status === 'Batal')
     <div class="mb-5 rounded-card border-2 border-ink bg-danger/30 p-4"><p class="font-extrabold">Service dibatalkan {{ $service->cancelled_at?->timezone(config('app.timezone'))->translatedFormat('d M Y, H:i') }} oleh {{ $service->cancelledBy?->name ?? 'Admin' }}.</p><p class="mt-1 text-sm">Alasan: {{ $service->cancellation_reason }}</p>@if($service->paid_total > 0)<p class="mt-2 text-sm font-bold">Pembayaran Rp {{ number_format($service->paid_total, 0, ',', '.') }} tetap tercatat. Pengembalian uang tidak diproses otomatis.</p>@endif</div>
 @endif
+
+<div class="mb-4 brutal-card border-2 border-ink bg-warning/40 p-4 sm:flex sm:items-center sm:justify-between sm:gap-4">
+    <div><p class="text-xs font-extrabold uppercase tracking-wide">Kode cek status untuk pelanggan</p><p class="mt-1 font-mono text-xl font-black tracking-wider">{{ $trackingCode ?: 'Belum tersedia' }}</p><p class="text-sm">Cek status di <a class="font-bold underline" href="{{ route('public.services.index') }}" target="_blank" rel="noopener noreferrer">{{ route('public.services.index') }}</a>. Berikan kode ini hanya kepada pemilik service.</p></div>
+    <x-button as="a" href="{{ route('public.services.index') }}" target="_blank" rel="noopener noreferrer" variant="neutral" size="sm" class="mt-3 shrink-0 sm:mt-0">Buka cek status</x-button>
+</div>
 
 <div class="grid gap-4 lg:grid-cols-[minmax(0,1.3fr)_minmax(300px,0.7fr)]">
     <div class="space-y-4">
