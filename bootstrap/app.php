@@ -14,6 +14,12 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $trustedProxies = getenv('TRUSTED_PROXIES');
+        if ($trustedProxies !== false && $trustedProxies !== '') {
+            $proxies = $trustedProxies === '*' ? '*' : array_map('trim', explode(',', $trustedProxies));
+            $middleware->trustProxies(at: $proxies);
+        }
+
         $middleware->alias([
             'role' => RoleMiddleware::class,
             'force.password.change' => ForcePasswordChange::class,

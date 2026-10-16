@@ -6,8 +6,10 @@ use App\Http\Requests\StoreStockInRequest;
 use App\Models\Product;
 use App\Models\StockIn;
 use App\Services\StockInService;
+use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class StockInController extends Controller
@@ -19,6 +21,15 @@ class StockInController extends Controller
             'from' => ['nullable', 'date_format:Y-m-d'],
             'to' => ['nullable', 'date_format:Y-m-d'],
         ]);
+        if (! empty($validated['from']) && ! empty($validated['to']) && $validated['from'] > $validated['to']) {
+            throw ValidationException::withMessages(['from' => 'Tanggal awal tidak boleh melewati tanggal akhir.']);
+        }
+        $from = ! empty($validated['from'])
+            ? Carbon::parse($validated['from'], config('app.timezone'))->startOfDay()
+            : null;
+        $to = ! empty($validated['to'])
+            ? Carbon::parse($validated['to'], config('app.timezone'))->endOfDay()
+            : null;
 
         $stockIns = StockIn::query()
             ->with(['product:id,name,barcode,unit', 'user:id,name'])
@@ -28,8 +39,8 @@ class StockInController extends Controller
                     ->where('name', 'like', '%'.$term.'%')
                     ->orWhere('barcode', 'like', '%'.$term.'%'));
             })
-            ->when(! empty($validated['from']), fn ($query) => $query->whereDate('received_at', '>=', $validated['from']))
-            ->when(! empty($validated['to']), fn ($query) => $query->whereDate('received_at', '<=', $validated['to']))
+            ->when($from, fn ($query) => $query->where('received_at', '>=', $from))
+            ->when($to, fn ($query) => $query->where('received_at', '<=', $to))
             ->orderByDesc('received_at')
             ->paginate(20)
             ->withQueryString();

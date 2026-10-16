@@ -13,7 +13,11 @@ class DashboardController extends Controller
     public function __invoke(): View
     {
         $user = request()->user();
-        $salesToday = Sale::query()->completed()->whereDate('sold_at', today(config('app.timezone')));
+        $today = today(config('app.timezone'));
+        $salesToday = Sale::query()->completed()->whereBetween('sold_at', [
+            $today->copy()->startOfDay(),
+            $today->copy()->endOfDay(),
+        ]);
 
         if (! $user->isAdmin()) {
             $salesToday->where('user_id', $user->id);

@@ -7,9 +7,11 @@ use App\Http\Requests\StoreSaleRequest;
 use App\Models\Sale;
 use App\Services\SaleCancellationService;
 use App\Services\SaleService;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class SaleController extends Controller
@@ -22,13 +24,22 @@ class SaleController extends Controller
             'to' => ['nullable', 'date_format:Y-m-d'],
             'status' => ['nullable', 'in:completed,cancelled'],
         ]);
+        if (! empty($validated['from']) && ! empty($validated['to']) && $validated['from'] > $validated['to']) {
+            throw ValidationException::withMessages(['from' => 'Tanggal awal tidak boleh melewati tanggal akhir.']);
+        }
+        $from = ! empty($validated['from'])
+            ? Carbon::parse($validated['from'], config('app.timezone'))->startOfDay()
+            : null;
+        $to = ! empty($validated['to'])
+            ? Carbon::parse($validated['to'], config('app.timezone'))->endOfDay()
+            : null;
 
         $sales = Sale::query()
             ->with('user:id,name')
             ->when(! $request->user()->isAdmin(), fn ($query) => $query->where('user_id', $request->user()->id))
             ->when(! empty($validated['q']), fn ($query) => $query->where('number', 'like', '%'.trim($validated['q']).'%'))
-            ->when(! empty($validated['from']), fn ($query) => $query->whereDate('sold_at', '>=', $validated['from']))
-            ->when(! empty($validated['to']), fn ($query) => $query->whereDate('sold_at', '<=', $validated['to']))
+            ->when($from, fn ($query) => $query->where('sold_at', '>=', $from))
+            ->when($to, fn ($query) => $query->where('sold_at', '<=', $to))
             ->when(! empty($validated['status']), fn ($query) => $query->where('status', $validated['status']))
             ->orderByDesc('sold_at')
             ->paginate(20)
