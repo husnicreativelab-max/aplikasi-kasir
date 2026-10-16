@@ -105,7 +105,7 @@ docker compose up -d
 
 Direktori storage dipakai bersama oleh PHP dan Nginx. Jangan memulihkan backup ke database produksi aktif sebelum memverifikasi nama database dan waktu snapshot.
 
-> Repositori saat ini belum menyertakan `composer.lock`. Docker akan menyelesaikan versi yang memenuhi constraint Composer saat image dibangun. Untuk rilis yang dapat direproduksi, buat dan commit `composer.lock` menggunakan PHP 8.3+ dan Composer 2 setelah tes berhasil; Dockerfile otomatis menggunakannya jika tersedia.
+Composer dependencies dikunci di `composer.lock`; Docker dan CI memasang versi yang sama. Perbarui lock file dengan Composer 2 pada PHP 8.3+ dan jalankan seluruh tes sebelum merilisnya.
 
 ## Kebutuhan
 

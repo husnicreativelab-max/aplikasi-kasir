@@ -85,12 +85,16 @@ class PhaseThreeTest extends TestCase
             ->assertOk()
             ->assertSee($code);
 
-        $this->post(route('public.services.check'), [
+        $response = $this->post(route('public.services.check'), [
             'number' => $service->number,
             'tracking_code' => $code,
-        ])->assertOk()
-            ->assertHeader('Cache-Control', 'private, no-store, max-age=0')
-            ->assertSee($service->number)
+        ])->assertOk();
+        $cacheControlDirectives = array_map('trim', explode(',', $response->headers->get('Cache-Control', '')));
+        $this->assertContains('private', $cacheControlDirectives);
+        $this->assertContains('no-store', $cacheControlDirectives);
+        $this->assertContains('max-age=0', $cacheControlDirectives);
+
+        $response->assertSee($service->number)
             ->assertDontSee($code)
             ->assertSee('Dikerjakan')
             ->assertSee('Dicek')
