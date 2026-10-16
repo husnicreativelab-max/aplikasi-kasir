@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   test-and-build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     services:
       mysql:
         image: mysql:8.4
@@ -30,7 +30,7 @@ jobs:
           --health-start-period=30s
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
@@ -43,15 +43,28 @@ jobs:
         run: composer install --no-interaction --no-progress --prefer-dist
 
       - name: Preserve generated Composer lock for the first release
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: composer-lock
           path: composer.lock
           if-no-files-found: error
           retention-days: 1
 
+      - name: Temporary lock-file recovery for constrained runners
+        run: echo "::notice title=TEMP_COMPOSER_LOCK_B64::$(base64 -w0 composer.lock)"
+
       - name: Run feature and unit tests (SQLite)
-        run: php artisan test
+        shell: bash
+        run: |
+          set +e
+          php artisan test --no-progress > /tmp/phpunit.log 2>&1
+          status=$?
+          cat /tmp/phpunit.log
+          if [ "$status" -ne 0 ]; then
+            failure_log="$(tail -n 100 /tmp/phpunit.log | base64 -w0)"
+            echo "::error title=PHPUNIT_FAILURE_LOG_B64::$failure_log"
+            exit "$status"
+          fi
 
       - name: Verify production route cache
         run: php artisan route:cache && php artisan route:clear
