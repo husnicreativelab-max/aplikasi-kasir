@@ -91,20 +91,4 @@ jobs:
         run: docker compose config --quiet
 
       - name: Build production web image
-        shell: bash
-        run: |
-          set +e
-          docker build --progress=plain --target web --tag aplikasi-kasir-web-ci:latest . > /tmp/docker-build.log 2>&1
-          status=$?
-          tail -n 120 /tmp/docker-build.log
-          if [ "$status" -ne 0 ]; then
-            payload="$(tail -n 120 /tmp/docker-build.log | base64 -w0)"
-            index=1
-            while [ -n "$payload" ] && [ "$index" -le 10 ]; do
-              chunk="${payload:0:3000}"
-              payload="${payload:3000}"
-              echo "::error title=DOCKER_BUILD_FAILURE_LOG_${index}::${chunk}"
-              index=$((index + 1))
-            done
-            exit "$status"
-          fi
+        run: docker build --target web --tag aplikasi-kasir-web-ci:latest .
