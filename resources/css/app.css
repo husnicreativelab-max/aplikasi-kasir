@@ -1,0 +1,56 @@
+@import "tailwindcss";
+@config "../../tailwind.config.js";
+@source "../**/*.blade.php";
+@source "../**/*.js";
+@source "../../app/Http/**/*.php";
+@source "../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php";
+@source inline("bg-primary bg-success bg-danger bg-info bg-warning bg-sky bg-white bg-gray-100 text-ink text-white text-danger");
+
+@font-face {
+    font-family: 'Space Grotesk';
+    src: url('/fonts/space-grotesk-latin-wght-normal.woff2') format('woff2');
+    font-style: normal;
+    font-weight: 300 700;
+    font-display: swap;
+}
+
+:root {
+    --color-primary: #FFD93D;
+}
+
+[x-cloak] { display: none !important; }
+
+@layer base {
+    html { font-family: 'Space Grotesk', system-ui, sans-serif; }
+    body { @apply bg-cream text-ink antialiased; }
+    button, input, select, textarea { font: inherit; }
+    button, a { -webkit-tap-highlight-color: transparent; }
+    ::selection { background: var(--color-primary); color: #1A1A1A; }
+}
+
+@layer components {
+    .brutal-card {
+        @apply rounded-card border-2 border-ink bg-paper shadow-brutal;
+    }
+    .brutal-card-soft {
+        @apply rounded-card border-2 border-ink bg-paper shadow-brutal-sm;
+    }
+    .brutal-btn {
+        @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-button border-2 border-ink px-4 py-2 font-bold text-ink shadow-brutal-sm transition duration-100 hover:-translate-y-0.5 hover:shadow-brutal active:translate-x-0.5 active:translate-y-0.5 active:shadow-none disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0;
+    }
+    .brutal-input {
+        @apply min-h-12 w-full rounded-button border-2 border-ink bg-white px-3 py-2 text-base text-ink placeholder:text-ink/50 focus:border-ink focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1;
+    }
+    .brutal-label { @apply mb-1.5 block text-sm font-bold text-ink; }
+    .form-error { @apply mt-1 text-sm font-semibold text-danger; }
+    .field-invalid .brutal-input { border-color: #FF6B6B; }
+    .table-head { @apply bg-cream text-left text-xs font-extrabold uppercase tracking-wide; }
+    .nav-link { @apply flex min-h-12 items-center gap-3 rounded-button border-2 border-transparent px-3 font-bold text-ink transition hover:border-ink hover:bg-white; }
+    .nav-link-active { @apply border-ink bg-primary shadow-brutal-sm; }
+    .metric-card { @apply rounded-card border-2 border-ink p-4 shadow-brutal; }
+    .status-badge { @apply inline-flex min-h-8 items-center gap-1.5 rounded-pill border-2 border-ink px-3 py-1 text-xs font-bold; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; }
+}
