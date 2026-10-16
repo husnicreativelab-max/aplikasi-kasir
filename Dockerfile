@@ -22,6 +22,10 @@ WORKDIR /var/www/html
 
 FROM php-runtime AS composer-dependencies
 
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends unzip \
+    && rm -rf /var/lib/apt/lists/*
+
 COPY --from=composer:2 /usr/bin/composer /usr/local/bin/composer
 COPY composer.* ./
 COPY app ./app
